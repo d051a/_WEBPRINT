@@ -1,0 +1,11 @@
+{% extends 'base_template.html' %}
+
+  {% block body %}
+    <h1>{{ recepient_detail.Name }} {{ recepient_detail.LastName }}</h1>
+
+
+    <form method="post">
+      <input type="text" name="test" />
+      <input type="submit">
+    </form>
+{% endblock%}
