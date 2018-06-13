@@ -2,10 +2,32 @@
 {% load static %}
 
 
+{%block navimenu%}
+<li><a href="{% url 'recepientsapp:recepients' %}">Адресная книга</a></li>
+<li class="active">Добавить адресата</li>
+
+{%endblock%}
+
 {%block body%}
 <form method="post">
   {% csrf_token %}
-  {{ form.as_ul }}
-  <input type="submit" value="Submit" />
+  <table>
+
+    <label for="">ФИО или название организации:</label>
+      {{ form.title }}
+      {{ form.title.errors }}
+      <label for="">Адрес:</label>
+      {{ form.address }}
+      {{ form.address.errors }}
+      <label for="">Индекс:</label>
+      {{ form.postcode }}
+      {{ form.postcode.errors }}
+
+
+
+</table>
+  <input type="submit" value="Создать" />
 </form>
+
+
 {%endblock%}

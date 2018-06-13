@@ -5,12 +5,12 @@
 {%endblock%}
 
 {%block navimenu%}
-<li><a href="">Адресная книга</a></li>
-<li class="active">Все адресаты</li>
+<li><a href="#">Адресная книга</a></li>
+<li class="active">Физические лица</li>
 {%endblock%}
 
 {%block header%}
-<h2 style="margin-left: 20px;">Все адресаты</h2>
+<h2 style="margin-left: 20px;">Адресаты</h2>
 {%endblock%}
 
 {%block body%}
@@ -19,7 +19,7 @@
             <thead>
                 <tr>
                     <th>-</th>
-                    <th>ФИО (название организации)</th>
+                    <th>ФИО</th>
                     <th>Адрес</th>
                     <th>Индекс</th>
                     <th>Дата создания</th>
@@ -30,9 +30,9 @@
                   {% for recepient in recepients_list %}
                 <tr>
                     <td>{{ recepient.pk }}</td>
-                    <td><a href="recepient/{{ recepient.pk }}/">{{ recepient.title }} </a></td>
+                    <td><a href="recepient/{{ recepient.pk }}/">{{ recepient.lastname }} {{ recepient.name }} {{ recepient.patronymic }} {{ recepient.title }}</a></td>
                     <td>{{ recepient.address }}</td>
-                    <td>{{ recepient.postcode }}</td>
+                    <td>{{ recepient.index }}</td>
                     <td>{{ recepient.pub_date }}</td>
                     <td>
                       <div class="dropdown">
