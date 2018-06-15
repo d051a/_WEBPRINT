@@ -10,12 +10,13 @@
 {%endblock%}
 
 {%block header%}
-<h2 style="margin-left: 20px;">Все адресаты</h2>
+<h2 style="margin-left: 20px;">Адресаты</h2>
 {%endblock%}
 
 {%block body%}
-<div style="margin-left: 20px; margin-right: 20px;">
+<div class = "col-md-12">
     <table id="example" class="display" style="width:100;">
+
             <thead>
                 <tr>
                     <th>-</th>
@@ -63,7 +64,26 @@
 <script type="text/javascript" language="javascript" src={% static "recepients/js/jquery.dataTables.min.js"%} ></script>
 <script>
 $(document).ready(function() {
-    $('#example').DataTable();
+    $('#example').DataTable({
+    language: {
+      processing:     "Traitement en cours...",
+      search:         "Фильтр",
+      lengthMenu:    "Показать _MENU_ элементов",
+      info:           "Показано _START_ из _END_ из _TOTAL_ элементов",
+      infoEmpty:      "Affichage de l'&eacute;lement 0 &agrave; 0 sur 0 &eacute;l&eacute;ments",
+      infoFiltered:   "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
+      infoPostFix:    "",
+      loadingRecords: "Chargement en cours...",
+      zeroRecords:    "Aucun &eacute;l&eacute;ment &agrave; afficher",
+      emptyTable:     "Aucune donnée disponible dans le tableau",
+      paginate: {
+            first:      "Первый",
+            previous:   "Предыдущий",
+            next:       "Следующий",
+            last:       "Последний"
+        },
+    }
+});
 } );
 </script>
 {%endblock%}

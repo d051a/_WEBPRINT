@@ -24,7 +24,7 @@ class Recepient(models.Model):
     address = models.CharField('Адрес', max_length = 100)
     postcode = models.CharField('Индекс', max_length = 6, null = True)
     class Meta:
-        ordering = ['-pk']
+        ordering = ['title']
         verbose_name = 'Получатель'
         verbose_name_plural = 'Получатели'
     def __str__(self):
@@ -51,3 +51,4 @@ class Envelop(models.Model):
         verbose_name_plural = 'Конверты'
     def __str__(self):
         return self.env_title
+

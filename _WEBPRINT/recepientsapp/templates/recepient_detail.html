@@ -2,33 +2,34 @@
 
 {%block navimenu%}
 <li><a href="{% url 'recepientsapp:recepients' %}">Адресная книга</a></li>
-<li class="active">{{ recepient_detail.title }}</li>
+<li class="active">{{ title }}</li>
 {%endblock%}
 
 {% block header %}
-    <h2 style="margin-left: 20px;">{{ recepient_detail.title}} </h2>
+    <h2 style="margin-left: 20px;">{{ title }} </h2>
 {% endblock%}
 
 {% block body %}
 
-<form method="post">
-  {% csrf_token %}
-  <table>
 
-    <label for="">ФИО или название организации:</label>
-      {{ form.title }}
-      {{ form.title.errors }}
-      <label for="">Адрес:</label>
-      {{ form.address }}
-      {{ form.address.errors }}
-      <label for="">Индекс:</label>
-      {{ form.postcode }}
+<form class = "col-md-5" method="post">
+  <div class="form-group">
+    <label for="label">{{ form.title.label }}</label>
+    <input type="text" class="form-control" id="{{ form.title.html_name }}" value="{{ form.title.value }}" maxlength="100" name="{{ form.title.html_name }}">
+    {{ form.title.errors }}
+  </div>
+  <div class="form-group">
+    <label for="label">{{ form.address.label }}</label>
+    <input type="text" class="form-control" id="id_{{ form.address.html_name }}" value="{{ form.address.value }}" maxlength="100" name="{{ form.address.html_name }}">
+    {{ form.address.errors }}
+  </div>
+    <div class="form-group">
+    <label for="label">{{ form.postcode.label }}</label>
+    <input type="text" class="form-control" id="id_{{ form.postcode.html_name }}" value="{{ form.postcode.value }}" maxlength="100" name="{{ form.postcode.html_name }}">
       {{ form.postcode.errors }}
-
-
-
-</table>
-  <input type="submit" value="ИЗМЕНИТЬ" />
+  </div>
+  <button type="submit" class="btn btn-default">ИЗМЕНИТЬ</button>
 </form>
+
 
 {% endblock%}

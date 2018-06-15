@@ -20,12 +20,14 @@
         <ul class="nav navbar-nav">
           <li class="active" class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Адресная книга<span class="caret"></span></a>
             <ul class="dropdown-menu">
+              <li ><a href="{% url 'recepientsapp:recepients' %}">Все адресаты</a></li>
               <li ><a href="{% url 'recepientsapp:recepient_add' %}">Добавить адресата</a></li>
             </ul>
+
           </li>
           <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Конверты<span class="caret"></span></a>
             <ul class="dropdown-menu">
-              <li><a href="#">Все</a></li>
+              <li><a href="{% url 'recepientsapp:envelops' %}">Все конверты</a></li>
               <li><a href="#">Создать новый</a></li>
             </ul>
           </li>

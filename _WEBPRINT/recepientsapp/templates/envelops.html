@@ -10,17 +10,17 @@
 {%endblock%}
 
 {%block header%}
-<h2 style="margin-left: 20px;">Все конверты</h2>
+<h2 style="margin-left: 20px;">Конверты</h2>
 {%endblock%}
 
 {%block body%}
-<div style="margin-left: 20px; margin-right: 20px;">
+<div class = "col-md-6">
     <table id="example" class="display" style="width:100;">
             <thead>
                 <tr>
                     <th>-</th>
-                    <th>EnvelopName</th>
-                    <th>EnvelopFormat</th>
+                    <th>Название конверта</th>
+                    <th>Формат конверта</th>
                 </tr>
             </thead>
             <tbody>
@@ -30,19 +30,6 @@
                     <td><a href="envelop/{{ envelop.pk }}/">{{ envelop.env_title }} </a></td>
                     <td>{{ envelop.envelop_format }}</td>
                     <td>
-                      <div class="dropdown">
-                        <button class="btn btn-default btn-xs dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                          Печать
-                          <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                          <li><a href="#">C5</a></li>
-                          <li><a href="#">C4</a></li>
-                          <li><a href="#">Something else here</a></li>
-                          <li role="separator" class="divider"></li>
-                          <li><a href="#">Separated link</a></li>
-                        </ul>
-                      </div>
                     </td>
                   </tr>
 
