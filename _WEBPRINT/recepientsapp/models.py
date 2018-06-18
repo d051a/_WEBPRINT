@@ -44,11 +44,10 @@ class Envelop_format (models.Model):
 class Envelop(models.Model):
     env_title = models.CharField('Название конверта', max_length = 30)
     envelop_format = models.ForeignKey(Envelop_format)
-    envelop_template = models.FileField('Шаблон конверта', upload_to = '/home/d051a/Desktop/PythonProjects/_webprint/_WEBPRINT/upload/')
+    envelop_template = models.FileField('Шаблон конверта')
     class Meta:
         ordering = ['-pk']
         verbose_name = 'Конверт'
         verbose_name_plural = 'Конверты'
     def __str__(self):
         return self.env_title
-

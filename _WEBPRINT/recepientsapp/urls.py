@@ -9,7 +9,9 @@ urlpatterns = [
     url(r'recepient/(\d+)/$', views.recepient_detail, name='recepient_detail'),
     url(r'recepient_add/$', views.recepient_add, name='recepient_add'),
     url(r'envelops/$', views.envelops, name='envelops'),
-    #url(r'envelops_add/$', views.envelop_add, name='envelop_add'),
+    #url(r'test/$', views.test, name='test'),
+
+    url(r'envelop_add/$', views.envelop_add, name='envelop_add'),
     #url(r'envelop/(\d+)/$', views.envelop_detail, name='envelop_detail'),
 
 ]

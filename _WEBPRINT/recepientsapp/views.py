@@ -1,31 +1,24 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template import RequestContext, loader
-from .models import Recepient, Envelop
 from django import forms
+from .models import Recepient, Envelop
+from .forms import AddRecepientForm, RecepientDetailForm, AddEnvelopeModelForm
+
 from itertools import chain
-
-#from mailmerge import mailmerge
-
+from mailmerge import MailMerge
 
 
-class AddRecepientForm(forms.Form):
-    title = forms.CharField(label = 'Имя', max_length = 30)
-    #pub_date = forms.DateField(label = 'date published')
-    address = forms.CharField(label = 'Адрес', max_length = 100)
-    postcode = forms.CharField(label = 'Индекс', max_length = 6)
 
-class RecepientDetailForm(forms.Form):
-    title = forms.CharField(label = 'Имя', max_length = 30)
-    #pub_date = forms.DateField(label = 'date published')
-    address = forms.CharField(label = 'Адрес', max_length = 100)
-    postcode = forms.CharField(label = 'Индекс', max_length = 6)
-
-'''class AddEnvelopeForm(forms.Form):
-    env_title = models.CharField('Название конверта', max_length=30)
-    envelop_format = models.ForeignKey('Формат конверта', Envelop_format)
-    envelop_template = models.FileField('Шаблон конверта',
-                                        upload_to='/home/d051a/Desktop/PythonProjects/_webprint/_WEBPRINT/upload/')'''
+def env_generate (title, address, postcode, recep_id):
+    template = r'D:\_YANDEXDRIVE\_ADMIN\_PYTHON\_wordtempl\templ.docx'
+    document = MailMerge(template)
+    #print('Fields:', document.get_merge_fields())
+    document.merge(
+        TITLE = title,
+        ADDRESS = address,
+        POSTCODE = postcode, )
+    document.write(r'D:\_YANDEXDRIVE\_ADMIN\_PYTHON\_wordtempl\00{}.docx'.format(recep_id))
 
 
 def envelops (request):
@@ -37,21 +30,25 @@ def recepients (request):
     print (recepients_list)
     return render(request, 'recepients.html', {'recepients_list': recepients_list})
 
+
 def recepient_add(request):
-    # if this is a POST request we need to process the form data
     if request.method == 'POST':
         form = AddRecepientForm(request.POST)
+        recepient_count = Recepient.objects.all().count()
         if form.is_valid():
             cld = form.cleaned_data
             recepient = Recepient()
             recepient.title = cld['title']
             recepient.address = cld['address']
             recepient.postcode = cld['postcode']
+            env_generate (recepient.title, recepient.address, recepient.postcode, recepient_count+1)
             recepient.save()
             return HttpResponseRedirect('/')
     else:
         form = AddRecepientForm()
+
     return render(request, 'recepient_add.html', {'form': form})
+
 
 def recepient_detail(request, rec_id):
     recepient_detail = Recepient.objects.get(pk=rec_id)
@@ -63,6 +60,7 @@ def recepient_detail(request, rec_id):
             recepient.title = cld['title']
             recepient.address = cld['address']
             recepient.postcode = cld['postcode']
+            env_generate (recepient.title, recepient.address, recepient.postcode, rec_id)
             recepient.save()
             return HttpResponseRedirect('/')
     else:
@@ -76,16 +74,30 @@ def recepient_detail(request, rec_id):
                                                      'postcode': recepient_detail.postcode
                                                      })
 
+'''def envelop_add(request):
+    if request.method == 'POST':
+        form = AddEnvelopeForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/')
+    else:
+        form = AddEnvelopeForm()
+    return render(request, 'envelop_add.html', {'form': form})
 
-'''def test (request):
-    template = r'D:\_YANDEXDRIVE\_ADMIN\_PYTHON\_wordtempl\templ.docx'
 
-    document = mailmerge(template)
-    print(document.get_merge_fields())
 
-    document.merge(
-        Name='Gold',
-        LASTNAME='Springfield', )
-
-    document.write(r'D:\_YANDEXDRIVE\_ADMIN\_PYTHON\_wordtempl\test-output.docx')
-    return HttpResponse ("hello!")'''
+'''
+def envelop_add(request):
+    if request.method == 'POST':
+        form = AddEnvelopeModelForm(request.POST, request.FILES)
+        if form.is_valid():
+            cld = form.cleaned_data
+            envelop = Envelop()
+            envelop.env_title = cld['env_title']
+            envelop.envelop_format = cld['envelop_format']
+            envelop.envelop_template = cld['envelop_template']
+            envelop.save()
+            return HttpResponseRedirect('/')
+    else:
+        form = AddEnvelopeModelForm()
+    return render(request, 'envelop_add.html', {'form': form})
