@@ -4,21 +4,20 @@ from django.template import RequestContext, loader
 from django import forms
 from .models import Recepient, Envelop
 from .forms import AddRecepientForm, RecepientDetailForm, AddEnvelopeModelForm
-
 from itertools import chain
 from mailmerge import MailMerge
 
 
 
 def env_generate (title, address, postcode, recep_id):
-    template = r'D:\_YANDEXDRIVE\_ADMIN\_PYTHON\_wordtempl\templ.docx'
+    template = r'C:\Users\d051a\Desktop\project\django19\webprint\_WEBPRINT\media\templ.docx'
     document = MailMerge(template)
     #print('Fields:', document.get_merge_fields())
     document.merge(
         TITLE = title,
         ADDRESS = address,
         POSTCODE = postcode, )
-    document.write(r'D:\_YANDEXDRIVE\_ADMIN\_PYTHON\_wordtempl\00{}.docx'.format(recep_id))
+    document.write(r'C:\Users\d051a\Desktop\project\django19\webprint\_WEBPRINT\media\00{}.docx'.format(recep_id))
 
 
 def envelops (request):
@@ -27,8 +26,10 @@ def envelops (request):
 
 def recepients (request):
     recepients_list = Recepient.objects.order_by("-pk")
+    envelop_list = Envelop.objects.all()
     print (recepients_list)
-    return render(request, 'recepients.html', {'recepients_list': recepients_list})
+    return render(request, 'recepients.html', {'recepients_list': recepients_list,
+                                                'envelop_list': envelop_list})
 
 
 def recepient_add(request):
@@ -74,19 +75,7 @@ def recepient_detail(request, rec_id):
                                                      'postcode': recepient_detail.postcode
                                                      })
 
-'''def envelop_add(request):
-    if request.method == 'POST':
-        form = AddEnvelopeForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/')
-    else:
-        form = AddEnvelopeForm()
-    return render(request, 'envelop_add.html', {'form': form})
 
-
-
-'''
 def envelop_add(request):
     if request.method == 'POST':
         form = AddEnvelopeModelForm(request.POST, request.FILES)
