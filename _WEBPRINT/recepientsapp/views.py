@@ -1,92 +1,294 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.template import RequestContext, loader
-from django import forms
-from .models import Recepient, Envelop
-from .forms import AddRecepientForm, RecepientDetailForm, AddEnvelopeModelForm
+from django.shortcuts import render, redirect
+from .models import Recepient, Envelop, SecretType, SentEnvelop, Registry, RegistryTemplate
+from _WEBPRINT import settings
+from .forms import RecipientForm, EnvelopeFormatModelForm, PrintEnvelopForm, RegistryForm, RegistryTemplateForm
 from itertools import chain
 from mailmerge import MailMerge
+from django.views.generic import UpdateView
+from docxtpl import DocxTemplate
+import datetime
 
 
+def env_generate(request, envelop_data):
+	recipient = envelop_data['recipient']
+	envelop = envelop_data['envelop_format']
+	secret = envelop_data['secret_type']
+	outer_num = envelop_data['outer_num']
 
-def env_generate (title, address, postcode, recep_id):
-    template = r'C:\Users\d051a\Desktop\project\django19\webprint\_WEBPRINT\media\templ.docx'
-    document = MailMerge(template)
-    #print('Fields:', document.get_merge_fields())
-    document.merge(
-        TITLE = title,
-        ADDRESS = address,
-        POSTCODE = postcode, )
-    document.write(r'C:\Users\d051a\Desktop\project\django19\webprint\_WEBPRINT\media\00{}.docx'.format(recep_id))
+	if secret.visible:
+		secret = secret.name
+	else:
+		secret = ''
+
+	template = '{}/{}'.format(settings.MEDIA_ROOT, envelop.envelop_template)
+	document = MailMerge(template)
+	document.merge(
+		TITLE=recipient.title,
+		ADDRESS=recipient.address,
+		REGION=recipient.region,
+		CITY=recipient.city,
+		POSTCODE=recipient.postcode,
+		SECRET=secret,
+		OUTER_NUM=outer_num,
+
+	)
+
+	response = HttpResponse(content_type='text/docx')
+	response['Content-Disposition'] = 'attachment; filename=download.docx'
+	document.write(response)
+	return response
 
 
-def envelops (request):
-    envelops_list = Envelop.objects.all()
-    return render(request, 'envelops.html', {'envelops_list': envelops_list})
-
-def recepients (request):
-    recepients_list = Recepient.objects.order_by("-pk")
-    envelop_list = Envelop.objects.all()
-    print (recepients_list)
-    return render(request, 'recepients.html', {'recepients_list': recepients_list,
-                                                'envelop_list': envelop_list})
+def recepients(request):
+	recepients_list = Recepient.objects.order_by("-pk")
+	envelop_list = Envelop.objects.all()
+	secret_types_list = SecretType.objects.all()
+	return render(request, 'recepients.html', {
+		'recepients_list': recepients_list,
+		'envelop_list': envelop_list,
+		'secret_types_list': secret_types_list
+	})
 
 
 def recepient_add(request):
-    if request.method == 'POST':
-        form = AddRecepientForm(request.POST)
-        recepient_count = Recepient.objects.all().count()
-        if form.is_valid():
-            cld = form.cleaned_data
-            recepient = Recepient()
-            recepient.title = cld['title']
-            recepient.address = cld['address']
-            recepient.postcode = cld['postcode']
-            env_generate (recepient.title, recepient.address, recepient.postcode, recepient_count+1)
-            recepient.save()
-            return HttpResponseRedirect('/')
-    else:
-        form = AddRecepientForm()
+	if request.method == 'POST':
+		form = RecipientForm(request.POST)
+		if form.is_valid():
+			cld = form.cleaned_data
+			recipient = Recepient()
+			recipient.title = cld['title']
+			recipient.address = cld['address']
+			recipient.postcode = cld['postcode']
+			recipient.region = cld['region']
+			recipient.city = cld['city']
+			recipient.save()
+			return HttpResponseRedirect('/')
+	else:
+		form = RecipientForm()
 
-    return render(request, 'recepient_add.html', {'form': form})
+	return render(request, 'recepient_add.html', {'form': form})
 
 
 def recepient_detail(request, rec_id):
-    recepient_detail = Recepient.objects.get(pk=rec_id)
-    if request.method == 'POST':
-        form = RecepientDetailForm(request.POST)
-        if form.is_valid():
-            cld = form.cleaned_data
-            recepient = Recepient.objects.get(pk=rec_id)
-            recepient.title = cld['title']
-            recepient.address = cld['address']
-            recepient.postcode = cld['postcode']
-            env_generate (recepient.title, recepient.address, recepient.postcode, rec_id)
-            recepient.save()
-            return HttpResponseRedirect('/')
-    else:
-        form = RecepientDetailForm({'title': recepient_detail.title,
-                                    'address': recepient_detail.address,
-                                    'postcode': recepient_detail.postcode})
+	if request.method == 'POST':
+		form = RecipientForm(request.POST)
+		if form.is_valid():
+			cld = form.cleaned_data
+			recipient = Recepient.objects.get(pk=rec_id)
+			recipient.title = cld['title']
+			recipient.address = cld['address']
+			recipient.postcode = cld['postcode']
+			recipient.region = cld['region']
+			recipient.city = cld['city']
+			recipient.save()
+			return HttpResponseRedirect('/')
+	else:
+		recipient_detail = Recepient.objects.get(pk=rec_id)
+		form = RecipientForm({
+			'title': recipient_detail.title,
+			'address': recipient_detail.address,
+			'postcode': recipient_detail.postcode,
+			'region': recipient_detail.region,
+			'city': recipient_detail.city
+		})
 
-    return render(request, 'recepient_detail.html', {'form': form,
-                                                     'title': recepient_detail.title,
-                                                     'address': recepient_detail.address,
-                                                     'postcode': recepient_detail.postcode
-                                                     })
+		return render(request, 'recepient_detail.html', {'form': form,})
+
+def envelops(request):
+	envelops_list = Envelop.objects.all()
+	return render(request, 'envelops.html', {'envelops_list': envelops_list})
 
 
-def envelop_add(request):
-    if request.method == 'POST':
-        form = AddEnvelopeModelForm(request.POST, request.FILES)
-        if form.is_valid():
-            cld = form.cleaned_data
-            envelop = Envelop()
-            envelop.env_title = cld['env_title']
-            envelop.envelop_format = cld['envelop_format']
-            envelop.envelop_template = cld['envelop_template']
-            envelop.save()
-            return HttpResponseRedirect('/')
-    else:
-        form = AddEnvelopeModelForm()
-    return render(request, 'envelop_add.html', {'form': form})
+def envelop_template_add(request):
+	if request.method == 'POST':
+		form = EnvelopeFormatModelForm(request.POST, request.FILES)
+		if form.is_valid():
+			cld = form.cleaned_data
+			envelop = Envelop()
+			envelop.env_title = cld['env_title']
+			envelop.EnvelopFormat = cld['envelop_format']
+			envelop.envelop_template = cld['envelop_template']
+			envelop.save()
+			return redirect('recepientsapp:envelops_list')
+	else:
+		form = EnvelopeFormatModelForm()
+	return render(request, 'envelop_add.html', {'form': form})
+
+
+def envelop_template_detail(request, envelop_pk):
+	envelop = Envelop.objects.get(pk=envelop_pk)
+	if request.method == 'POST':
+		form = EnvelopeFormatModelForm(request.POST)
+		if form.is_valid():
+			cld = form.cleaned_data
+			envelop = Envelop()
+			envelop.env_title = cld['env_title']
+			envelop.EnvelopFormat = cld['envelop_format']
+			envelop.envelop_template = cld['envelop_template']
+			envelop.save()
+			return redirect('recepientsapp:envelops_list')
+	else:
+		form = EnvelopeFormatModelForm(instance=envelop)
+	return render(request, 'envelops_detail.html', {'form': form})
+
+
+
+def add_to_sent_envelops_list(recepient_data=None, envelop_data=None, secret_data=None):
+	recepient = Recepient.objects.get(pk=recepient_data)
+	envelop = Envelop.objects.get(pk=envelop_data)
+	secret = SecretType.objects.get(pk=secret_data)
+	return None
+
+
+def sent_envelops(request):
+	sent_envelops_list = SentEnvelop.objects.all().order_by('-pk')
+	return render(request, 'sent_envelops.html', {'sent_envelops_list': sent_envelops_list})
+
+
+def print_envelop(request):
+	if request.method == 'POST':
+		form = PrintEnvelopForm(request.POST)
+		if form.is_valid():
+			cld = form.cleaned_data
+			envelop = SentEnvelop()
+			envelop.recipient = cld['recipient']
+			envelop.rpo_type = cld['rpo_type']
+			envelop.secret_type = cld['secret_type']
+			envelop.envelop_format = cld['envelop_format']
+			envelop.outer_num = cld['outer_num']
+			envelop.registry_type = cld['registry_type']
+			envelop.save()
+			return env_generate(request, cld)
+	else:
+		form = PrintEnvelopForm()
+	return render(request, 'print_envelop.html', {'form': form})
+
+
+def registry_list(request):
+	registry_list = Registry.objects.all()
+	return render(request, 'registry.html', {'registry_list': registry_list,})
+
+
+def registry_detail(request, registry_pk=None):
+	if request.method == 'POST':
+		form = RegistryForm(request.POST)
+		if form.is_valid():
+			cld = form.cleaned_data
+			registry = Registry.objects.get(pk=registry_pk)
+			registry.type = cld['type']
+			registry.rpo_type = cld['rpo_type']
+			registry.save()
+			return redirect('recepientsapp:registry_list')
+	else:
+		registry = Registry.objects.get(pk=registry_pk)
+		form = RegistryForm(instance=registry)
+		registry_template_form = RegistryTemplateForm({'registry': registry_pk})
+		sent_envelops_list = SentEnvelop.objects.filter(registry=registry)
+		return render(request, 'registry_detail.html', {
+			'form': form,
+			'registry_template_form': registry_template_form,
+			'registry': registry,
+			'sent_envelops_list': sent_envelops_list,
+		})
+
+
+def sent_envelop_del_from_registry(request, envelop_pk, registry_pk):
+	envelop = SentEnvelop.objects.get(pk=envelop_pk)
+	envelop.registry = None
+	envelop.save()
+	return redirect('recepientsapp:registry_detail', registry_pk=registry_pk)
+
+
+def registry_delete(request, registry_pk):
+	registry = Registry.objects.get(pk=registry_pk)
+	registry.delete()
+	return redirect('recepientsapp:registry_list')
+
+
+def sent_envelop_add_to_registry(request, envelop_pk, registry_pk):
+	envelop = SentEnvelop.objects.get(pk=envelop_pk)
+	envelop.registry = None
+	envelop.save()
+	return redirect('recepientsapp:registry_detail', registry_pk=registry_pk)
+
+
+def registry_print(request):
+	registry_pk = request.GET['registry']
+	registry = Registry.objects.get(pk=registry_pk)
+	template = '{}/{}'.format(settings.MEDIA_ROOT, registry.type.template)
+	document = DocxTemplate(template)
+
+	envelops_list = SentEnvelop.objects.filter(registry=registry_pk)
+	envelops_list_len = len(envelops_list)
+	date = datetime.datetime.today().strftime("%d.%m.%Y")
+	context = {
+		'tbl_contents': envelops_list,
+		'registry_id': registry_pk,
+		'rpo_type': registry.rpo_type,
+		'envelops_list_len': envelops_list_len,
+		'date': date
+	}
+	document.render(context)
+	response = HttpResponse(content_type='text/docx')
+	response['Content-Disposition'] = 'attachment; filename=download.docx'
+	document.save(response)
+	return response
+
+
+def registry_add(request):
+	if request.method == 'POST':
+		form = RegistryForm(request.POST)
+		if form.is_valid():
+			cld = form.cleaned_data
+			registry = Registry()
+			registry.type = cld['type']
+			registry.rpo_type = cld['rpo_type']
+			registry.save()
+			envelops = SentEnvelop.objects.filter(registry=None).filter(rpo_type=cld['rpo_type']).filter(registry_type=cld['type'])
+			envelops.update(registry=registry)
+			return redirect('recepientsapp:registry_list')
+
+	else:
+
+		form = RegistryForm()
+		sent_envelops_list = SentEnvelop.objects.all().order_by('-pk')
+		return render(request, 'registry_add.html', {'form': form,
+													 'sent_envelops_list': sent_envelops_list})
+
+
+def registry_add2(request):
+	print('-------', request.GET)
+	if request.method == 'POST':
+		form = RegistryForm(request.POST)
+		if form.is_valid():
+			cld = form.cleaned_data
+			registry = Registry()
+			registry.type = cld['type']
+			registry.rpo_type = cld['rpo_type']
+			registry.save()
+			envelops = SentEnvelop.objects.filter(registry=None).filter(rpo_type=cld['rpo_type']).filter(registry_type=cld['type'])
+			envelops.update(registry=registry)
+			return redirect('recepientsapp:registry_list')
+
+	else:
+
+		form = RegistryForm()
+		sent_envelops_list = SentEnvelop.objects.all().order_by('-pk')
+		return render(request, 'registry_add2.html', {'form': form,
+													 'sent_envelops_list': sent_envelops_list})
+
+# class RegistryDetail(UpdateView):
+# 	template_name = 'registry_detail.html'
+# 	model = Registry
+# 	form = RegistryForm
+# 	context_object_name = 'Реестры'
+# 	pagename = 'Реестры'
+# 	fields = 'rpo_type', 'type'
+#
+# 	def get_context_data(self, **kwargs):
+# 		context = super().get_context_data(**kwargs)
+# 		registry = Registry.objects.get(pk=self.kwargs['pk'])
+# 		sent_envelops_list = SentEnvelop.objects.filter(registry=registry)
+# 		context['sent_envelops_list'] = sent_envelops_list
+# 		return context

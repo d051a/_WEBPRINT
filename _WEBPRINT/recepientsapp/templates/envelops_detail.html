@@ -1,0 +1,23 @@
+{% extends 'base_template.html' %}
+
+{%block navimenu%}
+<li><a href="{% url 'recepientsapp:recepients' %}">Адресная книга</a></li>
+<li class="active">{{ title }}</li>
+{%endblock%}
+
+{% block header %}
+    <h2 style="margin-left: 20px;">{{ title }} </h2>
+{% endblock%}
+
+{% block body %}
+
+
+<form class = "col-md-5" method="post">
+  <div class="form-group">
+{{ form }}
+  </div>
+  <button type="submit" class="btn btn-default">ИЗМЕНИТЬ</button>
+</form>
+
+
+{% endblock%}

@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Печать конветов</title>
     <link href={% static "css/bootstrap.min.css" %} rel="stylesheet">
+    <link href={% static "css/select2.min.css" %} rel="stylesheet">
     {%block head%}
     {%endblock%}
   </head>
@@ -28,12 +29,18 @@
           <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Конверты<span class="caret"></span></a>
             <ul class="dropdown-menu">
               <li><a href="{% url 'recepientsapp:envelops' %}">Все конверты</a></li>
-              <li><a href="#">Создать новый</a></li>
+              <li><a href="{% url 'recepientsapp:envelop_template_add' %}">Создать новый</a></li>
+              <li><a href="{% url 'recepientsapp:envelop_print' %}">Печать конвертов</a></li>
             </ul>
           </li>
-          <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Реестры<span class="caret"></span></a>
+          <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Отчеты<span class="caret"></span></a>
             <ul class="dropdown-menu">
-              <li><a href="#">Отправленные</a></li>
+              <li><a href="{% url 'recepientsapp:sent_envelops' %}">Отправленные конверты</a></li>
+            </ul>
+                  <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Реестры<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url 'recepientsapp:registry_list' %}">Печать реестров</a></li>
+              <li><a href="{% url 'recepientsapp:registry_add' %}">Создать новый</a></li>
             </ul>
         </ul>
       </div>
@@ -54,6 +61,7 @@
 
     <script src={% static "js/jquery.min.js" %}></script>
     <script src={% static "js/bootstrap.min.js" %}></script>
+    <script src={% static "js/select2.min.js" %}></script>
     {%block scripts%}
     {%endblock%}
   </body>

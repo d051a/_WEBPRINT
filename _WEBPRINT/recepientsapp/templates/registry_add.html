@@ -1,0 +1,18 @@
+{% extends 'base_template.html' %}
+{% load static %}
+
+
+{%block navimenu%}
+<li><a href="{% url 'recepientsapp:recepients' %}">Реестры</a></li>
+<li class="active">Добавить реестр</li>
+
+{%endblock%}
+
+{%block body%}
+
+<form class = "col-md-5" method="post">
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-default">СОЗДАТЬ</button>
+</form>
+
+{%endblock%}

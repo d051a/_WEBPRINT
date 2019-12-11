@@ -22,9 +22,10 @@
                     <th>-</th>
                     <th>ФИО (название организации)</th>
                     <th>Адрес</th>
+                    <th>Регион</th>
+                    <th>Город</th>
                     <th>Индекс</th>
                     <th>Дата создания</th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -33,24 +34,10 @@
                     <td>{{ recepient.pk }}</td>
                     <td><a href="recepient/{{ recepient.pk }}/">{{ recepient.title }} </a></td>
                     <td>{{ recepient.address }}</td>
+                    <td>{{ recepient.region }}</td>
+                    <td>{{ recepient.city }}</td>
                     <td>{{ recepient.postcode }}</td>
                     <td>{{ recepient.pub_date }}</td>
-                    <td>
-                      <div class="dropdown">
-                        <button class="btn btn-default btn-xs dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                          Печать
-                          <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                          {% for envelop in envelop_list %}
-                          <li><a href="/media/00{{ recepient.pk }}.docx">{{ envelop.env_title }} {{ envelop.envelop_format }}</a></li>
-                          {% endfor %}
-                          <li><a href="#">Something else here</a></li>
-                          <li role="separator" class="divider"></li>  
-
-                        </ul>
-                      </div>
-                    </td>
                   </tr>
 
 

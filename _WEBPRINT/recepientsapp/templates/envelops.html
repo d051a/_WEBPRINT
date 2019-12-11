@@ -27,8 +27,8 @@
                   {% for envelop in envelops_list %}
                 <tr>
                     <td>{{ envelop.pk }}</td>
-                    <td><a href="envelop/{{ envelop.pk }}/">{{ envelop.env_title }} </a></td>
-                    <td>{{ envelop.envelop_format }}</td>
+                    <td><a href="{% url 'recepientsapp:envelops_detail' envelop.pk %}">{{ envelop.env_title }} </a></td>
+                    <td>{{ envelop.envelop_format}}</td>
                     <td>
                     </td>
                   </tr>

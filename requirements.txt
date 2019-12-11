@@ -1,0 +1,3 @@
+docx-mailmerge
+django=1.1.15
+
